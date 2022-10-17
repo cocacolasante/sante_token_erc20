@@ -36,6 +36,7 @@ describe("Sante Token", ()=>{
     describe("Token functions", () =>{
         beforeEach(async ()=>{
             await token.mint(user1.address, 100)
+            await token.mint(user2.address, 100)
         })
         it("checks the token was minted", async () =>{
             expect(await token.balanceOf(user1.address)).to.equal(100)
@@ -45,6 +46,11 @@ describe("Sante Token", ()=>{
 
             expect(await token.balanceOf(user1.address)).to.equal(50)
         })
+        it("checks the max supply fail case", async () =>{
+            await token.connect(user2).mint(user2.address, 9999800)
+            await expect(token.connect(user2).mint(user2.address, 1000000000000000)).to.be.reverted
+        })
+        
     })
 
 
