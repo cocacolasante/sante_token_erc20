@@ -9,11 +9,9 @@ import "@openzeppelin/contracts/access/Ownable.sol";
 import "hardhat/console.sol";
 
 contract SanteToken is ERC20, ERC20Burnable, Ownable {
-    constructor() ERC20("Sante Token", "STK") {
-        mint(msg.sender, 10000000);
-    }
+    constructor() ERC20("Sante Token", "STK") {}
 
-    function mint(address to, uint256 amount) public onlyOwner {
+    function mint(address to, uint256 amount) public {
         _mint(to, amount);
     }
 }

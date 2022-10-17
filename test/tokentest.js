@@ -22,7 +22,7 @@ describe("Sante Token", ()=>{
         expect(await token.symbol()).to.equal("STK")
     })
     it("checks the total supply", async () =>{
-        expect(await token.totalSupply()).to.equal(10000000)
+        expect(await token.totalSupply()).to.equal(0)
         
     })
     it("checks the owner of the contract", async ()=>{
@@ -35,14 +35,15 @@ describe("Sante Token", ()=>{
 
     describe("Token functions", () =>{
         beforeEach(async ()=>{
-            await token.transfer(user1.address, 100)
-            await token.connect(deployer).burn(200)
+            await token.mint(user1.address, 100)
         })
-        it("checks the token was transfer", async () =>{
+        it("checks the token was minted", async () =>{
             expect(await token.balanceOf(user1.address)).to.equal(100)
         })
         it("checks the burn function", async () =>{
-            expect(await token.balanceOf(deployer.address)).to.equal(9999700)
+            await token.connect(user1).burn(50)
+
+            expect(await token.balanceOf(user1.address)).to.equal(50)
         })
     })
 
