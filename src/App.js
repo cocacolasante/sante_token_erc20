@@ -3,14 +3,20 @@ import './App.css';
 import { ethers } from 'ethers';
 import {SANTE_TOKEN_ADDRESS} from "./addressconfig"
 import santetokenabi from "./assets/santetoken.json"
+import logoTransparentBG from "./image-assests/logo-no-background.png"
+import {networks} from "./utils/networks"
 
 
 function App() {
   const [mintAmount, setMintAmount] = useState()
   const [activeAccount, setActiveAccount] = useState()
   const [currentTokCount, setCurrenttokCount] = useState()
+  const [totalSupply, setTotalSupply] = useState()
+  const [network, setNetwork] = useState("")
   const [triggerLoad, setTriggerLoad] = useState(false)
 
+  const toWei = (num) => ethers.utils.parseEther(num.toString())
+  const fromWei = (num) => ethers.utils.formatEther(num)
 
   const checkIfWalletIsConnected = async () =>{
     try{
@@ -22,12 +28,42 @@ function App() {
         console.log("Ethereum Window Found")
       }
       const accounts = await ethereum.request({method: "eth_requestAccounts"})
-      const account = accounts[0]
 
-      setActiveAccount(account)
+      if(accounts.length !== 0){
+        const account = accounts[0]
 
+        setActiveAccount(account)
+
+        console.log(`Account connected: ${accounts[0]}`)
+
+      }
+      const chainId = await ethereum.request({method: "eth_chainId"})
+      setNetwork(networks[chainId])
+
+      ethereum.on('chainChanged', handleChainChanged);
+
+      function handleChainChanged(_chainId) {
+        window.location.reload();
+      }
+
+
+    }catch(error){
+      console.log(error)
+    }
+  }
+
+  const connectWallet = async () =>{
+    try {
+      const {ethereum} = window;
+      if(!ethereum){
+        alert("please install metamask")
+        return;
+
+      }
+      const accounts = await ethereum.request({method: "eth_requestAccounts"})
+      setActiveAccount(accounts[0])
       console.log(`Account connected: ${accounts[0]}`)
-
+      
     }catch(error){
       console.log(error)
     }
@@ -41,7 +77,11 @@ function App() {
         const SanteTokenContract = new ethers.Contract(SANTE_TOKEN_ADDRESS, santetokenabi.abi, provider)
 
         const currentSupply = await SanteTokenContract.returnCurrentSupply()
-        setCurrenttokCount(currentSupply.toString())
+        const maxSupply = await SanteTokenContract.maxSupply()
+        setTotalSupply(fromWei(maxSupply))
+
+
+        setCurrenttokCount(fromWei(currentSupply.toString()))
       }
 
     }catch(error){
@@ -53,7 +93,7 @@ function App() {
   const mintTokens = async () =>{
     setTriggerLoad(true)
     try {
-      
+      console.log(mintAmount.toString())
       const {ethereum} = window;
       if(ethereum){
         const provider = new ethers.providers.Web3Provider(ethereum)
@@ -62,6 +102,7 @@ function App() {
 
         let txn = await SanteTokenContract.mint(activeAccount, mintAmount)
         let receipt = await txn.wait()
+        setMintAmount(0)
 
         if(receipt.status === 1){
           console.log("Tokens Minted Successful!")
@@ -79,9 +120,25 @@ function App() {
     setTriggerLoad(false)
   }
 
+  const renderMintButton = () => {
+    if(network !== "Polygon Mumbai Testnet"){
+      return (
+        <div>
+          <h4 className='switch-header'>Please Connect To Polygon Testnet</h4>
+        </div>
+      )
+    } 
+    return (
+      <div className='mint-btn-div'>
+
+            <button className="myButton" onClick={mintTokens}>Mint Now</button>
+          </div>
+    )
+  }
+
   useEffect(()=>{
     checkIfWalletIsConnected();
-  },[])
+  },[activeAccount, network])
 
   useEffect(()=>{
     getCurrentTokensMinted()
@@ -91,22 +148,20 @@ function App() {
   return (
     <div className="App">
       <div className='wallet-button-container'>
-        {!activeAccount ?  <button className='connect-btn'>Connect Wallet</button> : <p>{activeAccount.slice(0, 4)}...{activeAccount.slice(-6)}</p>}
+        {!activeAccount ?  <button onClick={connectWallet} className="myButton">Connect Wallet</button> : <button className="myButton">{activeAccount.slice(0, 4)}...{activeAccount.slice(-6)}</button>}
        
       </div>
       <div className='minting-container-main'>
-        <h1>Mint The Sante Token</h1>
-        <img alt="main page logo" src="null" />
+        {/* <h1>Mint The Sante Token</h1> */}
         <div className='minting-container-inputs'>
+        <img className='main-image' alt="main page logo" src={logoTransparentBG} />
+
           <div >
             <p>Current Tokens Minted: {currentTokCount}</p>
-            <p>Max Supply: 1000000</p>
-            <input placeholder='amount to mint' onChange={e=>setMintAmount(e.target.value)} />
+            <p>Max Supply: {totalSupply}</p>
+            <input className="Input" placeholder='amount to mint' onChange={e=>setMintAmount(toWei(e.target.value))} />
           </div>
-          <div className='mint-btn-div'>
-
-            <button onClick={mintTokens}>Mint Now</button>
-          </div>
+          {renderMintButton()}
         </div>
       </div>
       <div className='footer-container'>

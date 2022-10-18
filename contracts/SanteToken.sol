@@ -1,4 +1,4 @@
-// SPDX-License-Identifier: UNLICENSED
+// SPDX-License-Identifier: MIT
 pragma solidity ^0.8.9;
 
 
@@ -9,7 +9,7 @@ import "@openzeppelin/contracts/access/Ownable.sol";
 import "hardhat/console.sol";
 
 contract SanteToken is ERC20, ERC20Burnable, Ownable {
-    uint public maxSupply = 100000000;
+    uint public maxSupply = 10000000000000000000000000;
     uint public currentCount;
 
     constructor() ERC20("Sante Token", "STK") {}
