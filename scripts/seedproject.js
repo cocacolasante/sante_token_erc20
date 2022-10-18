@@ -1,6 +1,5 @@
 
 const { ethers } = require("hardhat");
-const hre = require("hardhat");
 const SANTE_TOKEN_ADDRESS = "0x5FbDB2315678afecb367f032d93F642f64180aa3"
 
 async function main() {
@@ -18,7 +17,7 @@ async function main() {
     await txn.wait()
     txn = await SanteToken.connect(minter2).mint(minter2.address, 12343)
     await txn.wait()
-    console.log(txn)
+    console.log(await SanteToken.returnCurrentSupply())
 
   
 }

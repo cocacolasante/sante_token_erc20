@@ -8,7 +8,9 @@ import santetokenabi from "./assets/santetoken.json"
 function App() {
   const [mintAmount, setMintAmount] = useState()
   const [activeAccount, setActiveAccount] = useState()
-  const [currentTokCount, setCurrenttokCount] = useState(0)
+  const [currentTokCount, setCurrenttokCount] = useState()
+  const [triggerLoad, setTriggerLoad] = useState(false)
+
 
   const checkIfWalletIsConnected = async () =>{
     try{
@@ -39,7 +41,7 @@ function App() {
         const SanteTokenContract = new ethers.Contract(SANTE_TOKEN_ADDRESS, santetokenabi.abi, provider)
 
         const currentSupply = await SanteTokenContract.returnCurrentSupply()
-        console.log(currentSupply)
+        setCurrenttokCount(currentSupply.toString())
       }
 
     }catch(error){
@@ -48,10 +50,43 @@ function App() {
     
   }
 
+  const mintTokens = async () =>{
+    setTriggerLoad(true)
+    try {
+      
+      const {ethereum} = window;
+      if(ethereum){
+        const provider = new ethers.providers.Web3Provider(ethereum)
+        const signer = provider.getSigner()
+        const SanteTokenContract = new ethers.Contract(SANTE_TOKEN_ADDRESS, santetokenabi.abi, signer)
+
+        let txn = await SanteTokenContract.mint(activeAccount, mintAmount)
+        let receipt = await txn.wait()
+
+        if(receipt.status === 1){
+          console.log("Tokens Minted Successful!")
+          
+          
+          
+        } else {
+          alert("Transaction failed, please try again")
+        }
+      }
+
+    }catch ( error){
+      console.log(error)
+    }
+    setTriggerLoad(false)
+  }
+
   useEffect(()=>{
     checkIfWalletIsConnected();
-    
   },[])
+
+  useEffect(()=>{
+    getCurrentTokensMinted()
+
+  },[triggerLoad])
 
   return (
     <div className="App">
@@ -64,13 +99,13 @@ function App() {
         <img alt="main page logo" src="null" />
         <div className='minting-container-inputs'>
           <div >
-            <p>Current Tokens Minted: {null}</p>
+            <p>Current Tokens Minted: {currentTokCount}</p>
             <p>Max Supply: 1000000</p>
             <input placeholder='amount to mint' onChange={e=>setMintAmount(e.target.value)} />
           </div>
           <div className='mint-btn-div'>
 
-            <button onClick={getCurrentTokensMinted}>Mint Now</button>
+            <button onClick={mintTokens}>Mint Now</button>
           </div>
         </div>
       </div>
