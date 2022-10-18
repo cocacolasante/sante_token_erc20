@@ -25,4 +25,8 @@ contract SanteToken is ERC20, ERC20Burnable, Ownable {
         _burn(_msgSender(), amount);
         currentCount -= amount;
     }
+
+    function returnCurrentSupply() external view returns(uint){
+        return currentCount;
+    }
 }

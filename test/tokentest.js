@@ -10,6 +10,7 @@ describe("Sante Token", ()=>{
         const tokenContractFactory = await ethers.getContractFactory("SanteToken")
         token = await tokenContractFactory.deploy()
         await token.deployed()
+        
 
         const accounts = await ethers.getSigners()
         deployer = accounts[0]
@@ -49,6 +50,8 @@ describe("Sante Token", ()=>{
         it("checks the max supply fail case", async () =>{
             await token.connect(user2).mint(user2.address, 9999800)
             await expect(token.connect(user2).mint(user2.address, 1000000000000000)).to.be.reverted
+
+            
         })
         
     })
