@@ -26,6 +26,9 @@
   min-height: 200px;
   max-height: auto;
   margin: auto;
+  background: rgb(52,48,50);
+  background: radial-gradient(circle, rgba(52,48,50,1) 29%, rgba(52,48,50,1) 62%, rgba(103,103,103,1) 100%);
+  color: whitesmoke;
 }
 
 .mint-btn-div{

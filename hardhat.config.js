@@ -9,11 +9,11 @@ module.exports = {
       url: process.env.POLYGON_MUMBAI_URL,
       accounts: [process.env.PRIVATE_KEY_DEPLOYER],
     },
-    // mainnet: {
-    //   chainId: 137,
-    //   url: process.env.POLYGON_MAINNET,
-    //   accounts: [process.env.PRIVATE_KEY_DEPLOYER],
-    // },
+    mainnet: {
+      chainId: 137,
+      url: process.env.POLYGON_MAINNET_URL,
+      accounts: [process.env.PRIVATE_KEY_DEPLOYER],
+    },
   },
   etherscan: {
     apiKey:{

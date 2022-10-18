@@ -91,9 +91,9 @@ function App() {
   }
 
   const mintTokens = async () =>{
-    setTriggerLoad(true)
+    setTriggerLoad(!triggerLoad)
     try {
-      console.log(mintAmount.toString())
+      
       const {ethereum} = window;
       if(ethereum){
         const provider = new ethers.providers.Web3Provider(ethereum)
@@ -102,7 +102,7 @@ function App() {
 
         let txn = await SanteTokenContract.mint(activeAccount, mintAmount)
         let receipt = await txn.wait()
-        setMintAmount(0)
+        
 
         if(receipt.status === 1){
           console.log("Tokens Minted Successful!")
@@ -117,7 +117,7 @@ function App() {
     }catch ( error){
       console.log(error)
     }
-    setTriggerLoad(false)
+    setTriggerLoad(!triggerLoad)
   }
 
   const renderMintButton = () => {
