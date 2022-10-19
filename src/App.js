@@ -8,12 +8,14 @@ import {networks} from "./utils/networks"
 
 
 function App() {
+  
   const [mintAmount, setMintAmount] = useState()
   const [activeAccount, setActiveAccount] = useState()
   const [currentTokCount, setCurrenttokCount] = useState()
   const [totalSupply, setTotalSupply] = useState()
   const [network, setNetwork] = useState("")
   const [triggerLoad, setTriggerLoad] = useState(false)
+  const [mintingCost, setMintingCost] = useState()
 
   const toWei = (num) => ethers.utils.parseEther(num.toString())
   const fromWei = (num) => ethers.utils.formatEther(num)
@@ -79,9 +81,10 @@ function App() {
 
         const currentSupply = await SanteTokenContract.returnCurrentSupply()
         const maxSupply = await SanteTokenContract.maxSupply()
+        const mintFee = await SanteTokenContract.mintingFee()
+
         setTotalSupply(fromWei(maxSupply))
-
-
+        setMintingCost(fromWei(mintFee))
         setCurrenttokCount(fromWei(currentSupply.toString()))
       }
 
@@ -162,6 +165,7 @@ function App() {
           <div >
             <p>Current Tokens Minted: {currentTokCount}</p>
             <p>Max Supply: {totalSupply}</p>
+            <p>Current Price: {mintingCost} Matic</p>
             <input className="Input" placeholder='amount to mint' onChange={e=>setMintAmount(toWei(e.target.value))} />
           </div>
           {renderMintButton()}
