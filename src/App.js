@@ -69,6 +69,7 @@ function App() {
     }
   }
 
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   const getCurrentTokensMinted = async () =>{
     try{
       const {ethereum} = window;
@@ -91,7 +92,7 @@ function App() {
   }
 
   const mintTokens = async () =>{
-    setTriggerLoad(!triggerLoad)
+    setTriggerLoad(true)
     try {
       
       const {ethereum} = window;
@@ -99,25 +100,26 @@ function App() {
         const provider = new ethers.providers.Web3Provider(ethereum)
         const signer = provider.getSigner()
         const SanteTokenContract = new ethers.Contract(SANTE_TOKEN_ADDRESS, santetokenabi.abi, signer)
-
-        let txn = await SanteTokenContract.mint(activeAccount, mintAmount)
+        let messageValue = (fromWei(mintAmount) / 10)
+        messageValue = toWei(messageValue)
+        
+        let txn = await SanteTokenContract.mint(activeAccount, mintAmount, {value: messageValue})
         let receipt = await txn.wait()
         
-
+        setTriggerLoad(false)
         if(receipt.status === 1){
-          console.log("Tokens Minted Successful!")
-          
-          
+          alert("Tokens Minted Successful!")
           
         } else {
           alert("Transaction failed, please try again")
         }
       }
-
+      
     }catch ( error){
       console.log(error)
     }
-    setTriggerLoad(!triggerLoad)
+    
+    
   }
 
   const renderMintButton = () => {
@@ -138,12 +140,13 @@ function App() {
 
   useEffect(()=>{
     checkIfWalletIsConnected();
+    
   },[activeAccount, network])
-
+  
   useEffect(()=>{
     getCurrentTokensMinted()
-
-  },[triggerLoad])
+    
+  }, [triggerLoad, activeAccount, network, getCurrentTokensMinted])
 
   return (
     <div className="App">
